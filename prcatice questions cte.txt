@@ -1,0 +1,106 @@
+
+-- maven movies dataset
+
+solve using Comman Table Expression
+
+1. calculate Average Rating of Movies by Genre.
+
+-- Select distinct genres
+SELECT DISTINCT genre FROM movies;
+
+-- For each genre, calculate the average rating
+FOR EACH genre
+    SELECT AVG(rating) AS avg_rating
+    FROM movies
+    WHERE genre = 'current_genre';
+
+
+2. find Top 5 Actors by Number of Movies.
+
+SELECT actors.actor_id, actors.name, COUNT(movie_actor.movie_id) AS movie_count
+FROM actors
+JOIN movie_actor ON actors.actor_id = movie_actor.actor_id
+GROUP BY actors.actor_id, actors.name
+ORDER BY movie_count DESC
+LIMIT 5;
+
+
+3. Directors with Movies Having Above Average Ratings.
+
+-- Calculate the average rating across all movies
+SELECT AVG(rating) AS avg_rating FROM movies;
+
+-- Query directors and movies, filtering for movies with above-average ratings
+SELECT director, title, rating
+FROM movies
+WHERE rating > (SELECT AVG(rating) FROM movies)
+ORDER BY director;
+
+
+4. Genre Trends Over Years.
+
+SELECT release_year, genre, COUNT(*) AS movie_count
+FROM movies
+GROUP BY release_year, genre
+ORDER BY release_year, genre;
+
+
+5. List All Movies Released After 2010.
+
+SELECT title, release_year
+FROM movies
+WHERE release_year > 2010
+ORDER BY release_year;
+
+
+6. Find the Average Rating for a Specific Movie.
+
+-- Query ratings for the specific movie
+SELECT rating
+FROM ratings
+WHERE movie_id = 'your_movie_id';
+
+-- Calculate the average rating
+SELECT AVG(rating) AS average_rating
+FROM ratings
+WHERE movie_id = 'your_movie_id';
+
+
+7. Count the Number of Movies in Each Genre.
+
+SELECT genre, COUNT(*) AS movie_count
+FROM movies
+GROUP BY genre
+ORDER BY movie_count DESC;
+
+
+8. List Actors with More Than 10 Movies.
+
+SELECT actors.actor_id, actors.name, COUNT(movie_actor.movie_id) AS movie_count
+FROM actors
+JOIN movie_actor ON actors.actor_id = movie_actor.actor_id
+GROUP BY actors.actor_id, actors.name
+HAVING COUNT(movie_actor.movie_id) > 10
+ORDER BY movie_count DESC;
+
+
+9. Identify Top 3 Most Rated Movies.
+
+SELECT movies.movie_id, movies.title, COUNT(ratings.movie_id) AS rating_count
+FROM movies
+JOIN ratings ON movies.movie_id = ratings.movie_id
+GROUP BY movies.movie_id, movies.title
+ORDER BY rating_count DESC
+LIMIT 3;
+
+
+10. Highest Rated Movie Per Director.
+
+SELECT movie_id, title, director, rating
+FROM (
+    SELECT *,
+           ROW_NUMBER() OVER (PARTITION BY director ORDER BY rating DESC) AS rn
+    FROM movies
+) AS ranked_movies
+WHERE rn = 1;
+
